@@ -1,35 +1,38 @@
 class Stops
 
-  attr_reader :name
+  attr_reader :station_id, :line_id, :id
 
-  def initialize(name)
-    @name = name
+  def initialize(input)
+    @id = input['id']
+    @line_id = input['line_id']
+    @station_id = input['station_id']
   end
 
-  def id
-    @id
+  def self.create(hash)
+    stop = Stops.new(hash)
+    stop.save
+    stop
   end
 
- def self.all
+
+  def self.all
   results = DB.exec("SELECT * FROM stops;")
   stops = []
   results.each do |result|
-    name = result['name']
-    id = result['id'].to_i
-    stops << Stops.new(name)
+    stops << Stops.new(result)
   end
-  stops.each do |stop|
-    puts stop.id.to_s + stop.name.to_s
+ stops
   end
- end
 
  def save
-  results = DB.exec("INSERT INTO stops (name) VALUES ('#{@name}') RETURNING id;")
+  results = DB.exec("INSERT INTO stops (station_id, line_id) VALUES ('#{@station_id}', '#{@line_id}') RETURNING id;")
   @id = results.first['id'].to_i
  end
 
  def ==(another_stop)
-  self.name == another_stop.name
- end
+
+  self.station_id.to_i == another_stop.station_id.to_i && self.line_id.to_i == another_stop.line_id.to_i
+  end
 end
+
 
